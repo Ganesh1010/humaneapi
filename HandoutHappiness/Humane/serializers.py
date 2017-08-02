@@ -69,7 +69,7 @@ class OrgUserRegiserationSerializer(serializers.ModelSerializer):
     email=serializers.EmailField(required=True)
     class Meta:
         model=UserProfile
-        fields= 'first_name','email','role',
+        fields= ('first_name','email','role',)
 
 
 class OrgDetailRegisterSerializer(serializers.ModelSerializer):
@@ -132,8 +132,6 @@ class DonationDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model=DonationDetail
         exclude = ('delivered_date','is_donation_completed',)
-
-
     def create(self, validated_data):
         print (validated_data)
         USER_MODEL=get_user_model()

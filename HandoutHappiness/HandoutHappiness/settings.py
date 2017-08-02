@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_swagger',
     'django_filters',
+    'rest_framework_jwt',
+    'rest_framework.authtoken',
 ]
 DJOSER = {
     'SERIALIZERS': {
@@ -49,7 +52,7 @@ DJOSER = {
     },
 }
 AUTH_USER_MODEL = 'Humane.UserProfile'
-AUTHENTICATION_BACKENDS = ['Humane.login.EmailOrMobileAuthenticationModelBackend']
+AUTHENTICATION_BACKENDS = ['Humane.login.EmailOrMobileAuthenticationModelBackend','rest_framework_jwt.authentication.JSONWebTokenAuthentication']
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -117,18 +120,22 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
 }
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
-
+JWT_AUTH = {
+'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+'JWT_AUTH_HEADER_PREFIX': 'Token',
+}
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
