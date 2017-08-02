@@ -179,6 +179,7 @@ class DonationCompletionSerialiser(serializers.ModelSerializer):
     received_by=serializers.CharField(required=True)
     donation=DonationDetailSerializer(read_only=True,source="*")
     #delivered_quantity = serializers.IntegerField(required=True,write_only=True)
+    
     class Meta:
         model=DonationDetail
         fields=('donation_id','donation','received_by')
