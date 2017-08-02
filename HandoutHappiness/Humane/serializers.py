@@ -88,7 +88,6 @@ class OrgDetailRegisterSerializer(serializers.ModelSerializer):
        fields = '__all__'
 
    def create(self, validated_data):
-       print (validated_data)
        users=validated_data.pop('user')
        for user in users:
             USER_MODEL=get_user_model()
@@ -133,7 +132,6 @@ class DonationDetailSerializer(serializers.ModelSerializer):
         model=DonationDetail
         exclude = ('delivered_date','is_donation_completed',)
     def create(self, validated_data):
-        print (validated_data)
         USER_MODEL=get_user_model()
         if not USER_MODEL.objects.filter(email= user['email']).exists():
            donatingUser['username']=donatingUser['email']
@@ -158,9 +156,10 @@ class GoodsDetailSerializer(serializers.ModelSerializer):
     donation_list=DonationDetailSerializer(many=True,required=False,read_only=True)
     goods_txt_desc = serializers.CharField(required=False,validators =[validate_txt_desc])
     org_id=serializers.CharField(required=False,read_only=True)
+    is_good_satisfied=serializers.BooleanField(required=False,read_only=True)
     class Meta:
         model=GoodsDetail
-        exclude = ('is_good_satisfied',)
+        fields = '__all__'
     def create(self, validated_data):
         items=validated_data.pop('goods_item_list')
         if OrganisationUserDetail.objects.filter(Q(user_id=self.context['request'].user.id)).exists():
@@ -185,7 +184,6 @@ class DonationCompletionSerialiser(serializers.ModelSerializer):
         fields=('donation_id','donation','received_by')
     def create(self,validated_data):
         if DonationDetail.objects.filter(donation_id=validated_data['donation_id']).exists():
-            print("present")
             donation=DonationDetail.objects.filter(donation_id=validated_data['donation_id'])[:1].get()
             donation.is_donation_completed=True
             donation.delivered_date=timezone.now()
