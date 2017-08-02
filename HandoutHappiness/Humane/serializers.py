@@ -102,6 +102,7 @@ class OrgDetailRegisterSerializer(serializers.ModelSerializer):
            organisationUserDetail=OrganisationUserDetail.objects.create(org_id=organisationDetail,user_id=userProfile)
        return organisationDetail
 
+
 class DonatingUserDetailSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True,validators =[validate_name])
     email=serializers.EmailField(required=False)
@@ -111,7 +112,7 @@ class DonatingUserDetailSerializer(serializers.ModelSerializer):
     address = serializers.CharField(required=False,validators =[validate_address])
     class Meta:
         model=UserProfile
-        fields= 'first_name','email','mobile','latitude','longitude','address','role',
+        fields= ('first_name','email','mobile','latitude','longitude','address','role',)
 
 class DonationItemDetailSerializer(serializers.ModelSerializer):
     delivered_quantity = serializers.IntegerField(required=False,read_only = True)
@@ -121,10 +122,9 @@ class DonationItemDetailSerializer(serializers.ModelSerializer):
     
 class DonationDetailSerializer(serializers.ModelSerializer):
     donatingUser=DonatingUserDetailSerializer(required=True,write_only=True)
-    donation_item_list=DonationItemDetailSerializer(many=True,required=False)
-    promised_date = serializers.DateTimeField(required=True)
+    donation_item_list=DonationItemDetailSerializer(many=True,required=True)
     delivered_date = serializers.DateTimeField(required=False,read_only = True)
-    received_by = serializers.CharField(required=True,validators =[validate_address])
+    received_by = serializers.CharField(required=False,validators =[validate_address])
     is_volunteer_required = serializers.BooleanField(required=False)
     is_donation_completed = serializers.BooleanField(required=False,read_only = True)
 
@@ -135,16 +135,26 @@ class DonationDetailSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         print (validated_data)
+        user=validated_data.pop('donatingUser')
         USER_MODEL=get_user_model()
         if not USER_MODEL.objects.filter(email= user['email']).exists():
-           donatingUser['username']=donatingUser['email']
-           userProfile=USER_MODEL.objects.create(**donatingUser)
+           user['username']=user['email']
+           userProfile=USER_MODEL.objects.create(**user)
            userProfile.set_password("12345678a")
            userProfile.save()
         else:
             raise serializers.ValidationError({'Error':'Email already exists'})
-        
-        return None
+        donationItemDetailList=validated_data.pop('donation_item_list')
+        for donationItemDetail in donationItemDetailList:
+            donationItemDetail['donation_id']=donationItemDetail['donation_id']
+            donationItemDetail['goods_id']=donationItemDetail['goods_id']
+            donationItemDetail['goods_item_id']=donationItemDetail['goods_item_id']
+            donationItemDetail['promised_quantity']=donationItemDetail['promised_quantity']
+            donationItemDetail['unit_id']=donationItemDetail['unit_id']
+            DonationItemDetail.objects.create(**donationItemDetail)
+
+        donationDetail=DonationDetail.objects.create(**validated_data)
+        return donationDetail
 
 class GoodsItemDetailSerializer(serializers.ModelSerializer):
     quantity = serializers.IntegerField(required=True)
