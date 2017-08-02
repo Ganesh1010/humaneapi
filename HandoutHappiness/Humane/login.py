@@ -18,7 +18,6 @@ class EmailOrMobileAuthenticationModelBackend(object):
                 return user
         except get_user_model().DoesNotExist:
             return None
-
     def get_user(self, username):
         try:
             return get_user_model().objects.get(pk=username)
