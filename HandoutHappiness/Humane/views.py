@@ -61,7 +61,6 @@ class DonationDetailViewSet(viewsets.ModelViewSet):
     serializer_class = DonationDetailSerializer
     http_method_names = ['get','post', 'head']
     pagination_class = StandardResultsSetPagination
-    #filter_class =GoodsFilter
     queryset = DonationDetail.objects.all()
 
 class DonationItemDetailViewSet(viewsets.ModelViewSet):
@@ -81,3 +80,31 @@ class NeedCompletionViewSet(viewsets.ModelViewSet):
     http_method_names = ['post', 'head']
     permission_classes = (AuthorizedOrgPermissionForNeedCompletion,)
     queryset=GoodsDetail.objects.all()
+
+class AllDetailsViewSet(viewsets.ModelViewSet):
+    serializer_class = GoodsDetailReadOnlySerializer
+    http_method_names = ['get', 'head']
+    pagination_class = StandardResultsSetPagination
+    queryset=GoodsDetail.objects.all()
+
+class GoodsItemDetailReadOnlyViewSet(viewsets.ModelViewSet):
+    serializer_class = GoodsItemDetailReadOnlySerializer
+    http_method_names = ['get', 'head']
+    queryset=GoodsItemDetail.objects.all()
+
+class DonationDetailReadOnlyViewSet(viewsets.ModelViewSet):
+    serializer_class = DonationDetailReadOnlySerializer
+    http_method_names = ['get', 'head']
+    queryset=DonationDetail.objects.all()
+
+class DonationItemDetailReadOnlyViewSet(viewsets.ModelViewSet):
+    serializer_class = DonationItemDetailReadOnlySerializer
+    http_method_names = ['get', 'head']
+    queryset=DonationItemDetail.objects.all()
+
+class OrganisationDetailReadOnlyViewSet(viewsets.ModelViewSet):
+    serializer_class = OrgDetailReadOnlySerializer
+    http_method_names = ['get', 'head']
+    queryset=OrganisationDetail.objects.all()
+
+

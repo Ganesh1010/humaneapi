@@ -26,6 +26,7 @@ router.register(r'orgDetailRegister',views.OrganisationDetailRegisterViewSet,'or
 router.register(r'donationCompletion',views.DonationCompletionViewSet,'donationCompletion')
 router.register(r'needCompletion',views.NeedCompletionViewSet,'needCompletion')
 router.register(r'editUserDetail',views.EditUserDetailViewSet,'editUserDetail')
+router.register(r'allDetail',views.AllDetailsViewSet,'allDetail')
 
 #router.register(r'goodsItemDetail',views.GoodsItemDetailViewSet,'goodsItemDetail')
 

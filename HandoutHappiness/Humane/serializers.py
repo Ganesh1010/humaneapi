@@ -212,4 +212,45 @@ class NeedCompletionSerialiser(serializers.ModelSerializer):
             raise serializers.ValidationError({'Error':'Goods ID not found'})
         return None
 
+class UserReadOnlySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=UserProfile
+        exclude=('id','role',)
+
+#Class OrgUSerDetailReadOnlySerializer(serializers.ModelSerializer):
+#class Meta:
+#        model=OrganisationUserDetail
+#        exclude=('coordinator_id')
+
+class OrgDetailReadOnlySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=OrganisationDetail
+        exclude=('org_id')
+
+class DonationItemDetailReadOnlySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=DonationItemDetail
+        exclude=('donation_item_id',)
+
+class DonationDetailReadOnlySerializer(serializers.ModelSerializer):
+    donation_item_list=DonationItemDetailReadOnlySerializer(many=True,read_only=True)
+    class Meta:
+        model=DonationDetail
+        exclude=('donation_id',)
+
+class GoodsItemDetailReadOnlySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=GoodsItemDetail
+        exclude=('goods_item_id',)
+
+class GoodsDetailReadOnlySerializer(serializers.ModelSerializer):
+    goods_item_list=GoodsItemDetailReadOnlySerializer(many=True,read_only=True)
+    donations=DonationDetailReadOnlySerializer(many=True,read_only=True)
+    #posted_by=OrgDetailReadOnlySerializer(read_only=True)
+
+    class Meta:
+        model=GoodsDetail
+        exclude=('goods_id',)
+
+
 
