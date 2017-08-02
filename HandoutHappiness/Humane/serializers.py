@@ -3,6 +3,7 @@ from Humane.models import *
 from Humane.validators import *
 from django.core.validators import validate_email
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password=serializers.CharField(required=True,write_only=True)
@@ -13,7 +14,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     latitude=serializers.FloatField(required=False)
     longitude=serializers.FloatField(required=False)
     address=serializers.CharField(required=False,validators =[validate_address])
-    
+
     class Meta:
         model=UserProfile
         fields= 'password','first_name','email','mobile','dob','latitude','longitude','address','role',
@@ -26,13 +27,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                 user.set_password(validated_data.get('password',''))
                 user.save()
                 return user
-        
+
             else:
                 raise serializers.ValidationError({'Error':'Email already exists'})
         else:
             raise serializers.ValidationError({'Error':'Email already exists'})
-    
-            
+
+
 class EditUserDetailSerializer(serializers.ModelSerializer):
     first_name =serializers.CharField(required=False,validators =[validate_name])
     email=serializers.EmailField(required=True)
@@ -41,7 +42,7 @@ class EditUserDetailSerializer(serializers.ModelSerializer):
     latitude=serializers.FloatField(required=False)
     longitude=serializers.FloatField(required=False)
     address=serializers.CharField(required=False)
-    
+
     class Meta:
         model=UserProfile
         fields= 'first_name','email','mobile','dob','address','latitude','longitude',
@@ -58,10 +59,10 @@ class EditUserDetailSerializer(serializers.ModelSerializer):
             user.role=validated_data.get('role',user.role)
             user.save()
             return user
-        
+
         else:
             raise serializers.ValidationError({'Error':'No permission to Edit'})
-		
+
 
 class OrgUserRegiserationSerializer(serializers.ModelSerializer):
     first_name =serializers.CharField(required=True,validators =[validate_name])
@@ -81,7 +82,7 @@ class OrgDetailRegisterSerializer(serializers.ModelSerializer):
    org_logo = serializers.CharField(required=True)
    people_count = serializers.IntegerField(required=True)
    is_active = serializers.BooleanField(required=True)
-   
+
    class Meta:
        model=OrganisationDetail
        fields = '__all__'
@@ -118,7 +119,7 @@ class DonationItemDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model=DonationItemDetail
         exclude = ('delivered_quantity',)
-    
+
 class DonationDetailSerializer(serializers.ModelSerializer):
     donatingUser=DonatingUserDetailSerializer(required=True,write_only=True)
     donation_item_list=DonationItemDetailSerializer(many=True,required=False)
@@ -132,7 +133,7 @@ class DonationDetailSerializer(serializers.ModelSerializer):
         model=DonationDetail
         exclude = ('delivered_date','is_donation_completed',)
 
-    
+
     def create(self, validated_data):
         print (validated_data)
         USER_MODEL=get_user_model()
@@ -143,7 +144,6 @@ class DonationDetailSerializer(serializers.ModelSerializer):
            userProfile.save()
         else:
             raise serializers.ValidationError({'Error':'Email already exists'})
-        
         return None
 
 class GoodsItemDetailSerializer(serializers.ModelSerializer):
@@ -151,19 +151,30 @@ class GoodsItemDetailSerializer(serializers.ModelSerializer):
     posted_date = serializers.DateTimeField(required=True)
     deadline = serializers.DateTimeField(required=True)
     is_good_item_satisfied = serializers.BooleanField(required=False,read_only = True)
-
     class Meta:
         model=GoodsItemDetail
-        exclude = ('is_good_item_satisfied',)
+        exclude = ('is_good_item_satisfied','goods_id')
 
 class GoodsDetailSerializer(serializers.ModelSerializer):
     goods_item_list=GoodsItemDetailSerializer(many=True,required=False)
     donation_list=DonationDetailSerializer(many=True,required=False,read_only=True)
-    is_good_satisfied = serializers.BooleanField(required=False,read_only = True)
     goods_txt_desc = serializers.CharField(required=False,validators =[validate_txt_desc])
+    org_id=serializers.CharField(required=False,read_only=True)
     class Meta:
         model=GoodsDetail
         exclude = ('is_good_satisfied',)
+    def create(self, validated_data):
+        items=validated_data.pop('goods_item_list')
+        if OrganisationUserDetail.objects.filter(Q(user_id=self.context['request'].user.id)).exists():
+            org=OrganisationUserDetail.objects.filter(user_id=self.context['request'].user.id)[:1].get()
+            validated_data['org_id']=org.org_id
+        else:
+            raise serializers.ValidationError({'Error':'Invalid operation'})
+        good=GoodsDetail.objects.create(**validated_data);
+        for item in items:
+            item['goods_id']=good
+            GoodsItemDetail.objects.create(**item)
+        return good
 
 class DonationCompletionSerialiser(serializers.ModelSerializer):
     donation_id=serializers.IntegerField(required=True)

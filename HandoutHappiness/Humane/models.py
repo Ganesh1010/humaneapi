@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.utils import timezone 
+from django.utils import timezone
 
 # Create your models here.
 class UserRoleLookUp(models.Model):
@@ -85,7 +85,7 @@ class GoodsDetail(models.Model):
     goods_txt_desc = models.CharField(max_length=500,null=True,blank=True)
     def __str__(self):
       return str(self.goods_id)
-   
+
 class GoodsItemDetail(models.Model):
     goods_item_id = models.AutoField(primary_key = True)
     goods_id = models.ForeignKey(GoodsDetail,related_name='goods_item_list')
@@ -93,7 +93,7 @@ class GoodsItemDetail(models.Model):
     posted_date =models.DateTimeField(default=timezone.now)
     deadline = models.DateTimeField()
     sub_item_id = models.ForeignKey(SubItemTypeLookUp)
-    is_good_item_satisfied = models.BooleanField()
+    is_good_item_satisfied = models.BooleanField(default=False)
     unit_id = models.ForeignKey(UnitLookUp)
     def __str__(self):
       return str(self.goods_item_id)
@@ -120,4 +120,3 @@ class DonationItemDetail(models.Model):
    unit_id=models.ForeignKey(UnitLookUp)
    def __str__(self):
       return str(self.donation_item_id)
-
