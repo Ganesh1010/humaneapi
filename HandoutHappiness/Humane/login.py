@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-##TAAest
+##TAAests
 class EmailOrMobileAuthenticationModelBackend(object):
     """
     This is a ModelBacked that allows authentication with either a mobile or an email address.
