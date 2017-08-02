@@ -29,7 +29,7 @@ class AuthorizedOrgPermissionForDonationCompletion(permissions.BasePermission):
             else:
                 return True
         return True
-<<<<<<< HEAD
+
 
 class AuthorizedOrgPermissionForNeedCompletion(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -53,7 +53,6 @@ class AuthorizedOrgPermissionForNeedCompletion(permissions.BasePermission):
             else:
                 return True
         return True
-=======
 class CustomPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         SAFE_METHODS=['GET','HEAD']
@@ -64,4 +63,3 @@ class CustomPermission(permissions.BasePermission):
         else:
             return OrganisationUserDetail.objects.filter(user_id=request.user.id).exists()
         return False
->>>>>>> origin/master

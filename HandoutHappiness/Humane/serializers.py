@@ -132,10 +132,6 @@ class DonationDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model=DonationDetail
         exclude = ('delivered_date','is_donation_completed',)
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
     def create(self, validated_data):
         print (validated_data)
         USER_MODEL=get_user_model()
