@@ -20,9 +20,9 @@ from rest_framework_jwt import views as jwt_views
 schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
-    url(r'^$', schema_view),
     url(r'^humane/', include('Humane.humaneurls')),
     url(r'^auth/login/', jwt_views.obtain_jwt_token, name='auth'),
+    url(r'^verify/', jwt_views.verify_jwt_token),
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('djoser.urls')),
 ]
