@@ -72,6 +72,11 @@ class DonationItemDetailViewSet(viewsets.ModelViewSet):
 class DonationCompletionViewSet(viewsets.ModelViewSet):
     serializer_class = DonationCompletionSerialiser
     http_method_names = ['post', 'head']
-    permission_classes = (AuthorizedOrgPermission,)
-    pagination_class = StandardResultsSetPagination
+    permission_classes = (AuthorizedOrgPermissionForDonationCompletion,)
     queryset=DonationDetail.objects.all()
+
+class NeedCompletionViewSet(viewsets.ModelViewSet):
+    serializer_class = NeedCompletionSerialiser
+    http_method_names = ['post', 'head']
+    permission_classes = (AuthorizedOrgPermissionForNeedCompletion,)
+    queryset=GoodsDetail.objects.all()
