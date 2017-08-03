@@ -132,6 +132,8 @@ REST_FRAMEWORK = {
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
+
+
 JWT_AUTH = {
 'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
 'JWT_AUTH_HEADER_PREFIX': 'Token',

@@ -31,7 +31,7 @@ class OrganisationDetail(models.Model):
     org_desc = models.CharField(max_length=500)
     org_logo = models.CharField(max_length=300)
     people_count = models.IntegerField()
-    is_active = models.BooleanField()
+    is_active = models.BooleanField(default=True)
     def __str__(self):
       return str(self.org_id)
 

@@ -48,22 +48,65 @@ class EditUserDetailSerializer(serializers.ModelSerializer):
         model=UserProfile
         fields= 'first_name','email','mobile','dob','address','latitude','longitude',
     def create(self, validated_data):
-        USER_MODEL=get_user_model()
-        loggedin_user_id =  self.context['request'].user.id
-        user=USER_MODEL.objects.filter(email=validated_data['email'])[:1].get()
-        if user.id == loggedin_user_id:
-            user.first_name=validated_data.get('first_name',user.first_name)
-            user.mobile=validated_data.get('mobile',user.mobile)
-            user.dob=validated_data.get('dob',user.dob)
-            user.latitude=validated_data.get('latitude',user.latitude)
-            user.longitude=validated_data.get('longitude',user.longitude)
-            user.role=validated_data.get('role',user.role)
-            user.save()
-            return user
+        if UserProfile.objects.filter(email=validated_data['email']).exists():
+            if not UserProfile.objects.filter(mobile=validated_data['mobile']).exists():
+                USER_MODEL=get_user_model()
+                loggedin_user_id =  self.context['request'].user.id
+                user=USER_MODEL.objects.filter(email=validated_data['email'])[:1].get()
+                if user.id == loggedin_user_id:
+                    user.first_name=validated_data.get('first_name',user.first_name)
+                    user.mobile=validated_data.get('mobile',user.mobile)
+                    user.dob=validated_data.get('dob',user.dob)
+                    user.latitude=validated_data.get('latitude',user.latitude)
+                    user.longitude=validated_data.get('longitude',user.longitude)
+                    user.role=validated_data.get('role',user.role)
+                    user.save()
+                    return user
 
+                else:
+                    raise serializers.ValidationError({'Error':'No permission to Edit'})
+            else:
+                raise serializers.ValidationError({'Error':'Mobile number already exists'})
         else:
-            raise serializers.ValidationError({'Error':'No permission to Edit'})
+            raise serializers.ValidationError({'Error':'Email Id does not exists'})
 
+class EditOrganisationDetailSerializer(serializers.ModelSerializer):
+    org_reg_no = serializers.CharField(required=True)
+    org_name = serializers.CharField(required=True)
+    org_type = serializers.CharField(required=True)
+    org_desc = serializers.CharField(required=True)
+    org_logo = serializers.CharField(required=True)
+    people_count = serializers.IntegerField(required=True)
+    latitude=serializers.FloatField(required=False)
+    longitude=serializers.FloatField(required=False)
+    address = serializers.CharField(required=True)
+
+    class Meta:
+        model=UserProfile
+        fields= 'org_reg_no','org_name','org_type','org_desc','org_logo','people_count','latitude','longitude','address',
+    def create(self, validated_data):
+        loggedin_user_id =  self.context['request'].user.id
+        if OrganisationDetail.objects.filter(org_reg_no=validated_data['org_reg_no']).exists():
+            organisationDetail = OrganisationDetail.objects.filter(org_reg_no=validated_data['org_reg_no']).get()
+            organisationUser = OrganisationUserDetail.objects.filter(user_id=loggedin_user_id).get()
+
+            if (organisationUser.organisation.org_id==organisationDetail.org_id):
+                organisation=OrganisationDetail.objects.filter(org_reg_no=validated_data['org_reg_no'])[:1].get()
+                organisation.org_name=validated_data.get('org_name',organisation.org_name)
+                organisation.org_type=validated_data.get('org_type',organisation.org_type)
+                organisation.org_desc=validated_data.get('org_desc',organisation.org_desc)
+                organisation.org_logo=validated_data.get('org_logo',organisation.org_logo)
+                organisation.people_count=validated_data.get('people_count',organisation.people_count)
+                organisation.latitude=validated_data.get('latitude',organisation.latitude)
+                organisation.longitude=validated_data.get('longitude',organisation.longitude)
+                organisation.address=validated_data.get('address',organisation.address)
+                organisation.save()
+                return organisation
+
+            else:
+                raise serializers.ValidationError({'Error':'No permission to Edit'})
+        else:
+            raise serializers.ValidationError({'Error':'Org reg number does not exists'})
 
 class OrgUserRegiserationSerializer(serializers.ModelSerializer):
     first_name =serializers.CharField(required=True,validators =[validate_name])
@@ -82,11 +125,10 @@ class OrgDetailRegisterSerializer(serializers.ModelSerializer):
    org_desc = serializers.CharField(required=True)
    org_logo = serializers.CharField(required=True)
    people_count = serializers.IntegerField(required=True)
-   is_active = serializers.BooleanField(required=True)
 
    class Meta:
        model=OrganisationDetail
-       fields = '__all__'
+       exclude = ('is_active',)
 
    def create(self, validated_data):
        users=validated_data.pop('user')
@@ -205,12 +247,11 @@ class ServiceDetailSerializer(serializers.ModelSerializer):
 class DonationCompletionSerialiser(serializers.ModelSerializer):
     donation_id=serializers.IntegerField(required=True)
     received_by=serializers.CharField(required=True)
-    donation=DonationDetailSerializer(read_only=True,source="*")
-    #delivered_quantity = serializers.IntegerField(required=True,write_only=True)
+    is_donation_completed=serializers.BooleanField(required=False,read_only=True)
 
     class Meta:
         model=DonationDetail
-        fields=('donation_id','donation','received_by')
+        fields=('donation_id','is_donation_completed','received_by')
     def create(self,validated_data):
         if DonationDetail.objects.filter(donation_id=validated_data['donation_id']).exists():
             donation=DonationDetail.objects.filter(donation_id=validated_data['donation_id'])[:1].get()
@@ -226,11 +267,11 @@ class DonationCompletionSerialiser(serializers.ModelSerializer):
 
 class NeedCompletionSerialiser(serializers.ModelSerializer):
     goods_id=serializers.IntegerField(required=True)
-    goods_detail=GoodsDetailSerializer(read_only=True,source="*")
-    #delivered_quantity = serializers.IntegerField(required=True,write_only=True)
+    is_good_satisfied=serializers.BooleanField(required=False,read_only=True)
+
     class Meta:
         model=GoodsDetail
-        fields=('goods_id','goods_detail')
+        fields=('goods_id','is_good_satisfied')
     def create(self,validated_data):
         if GoodsDetail.objects.filter(goods_id=validated_data['goods_id']).exists():
             goods=GoodsDetail.objects.filter(goods_id=validated_data['goods_id'])[:1].get()
