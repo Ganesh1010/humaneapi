@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^verify/', jwt_views.verify_jwt_token),
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('djoser.urls')),
+    url(r'^$', schema_view)
 ]

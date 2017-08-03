@@ -11,8 +11,8 @@ class AuthorizedOrgPermissionForDonationCompletion(permissions.BasePermission):
                 donationObject=DonationDetail.objects.filter(pk=request.data.get('donation_id',None))[:1].get()
                 goodsObject=donationObject.goods.goods_id
                 if GoodsDetail.objects.filter(pk=goodsObject).exists():
-                    goodsObject=GoodsDetail.objects.filter(pk=goodsObject)[:1].get()
-                    organisationDetail=goodsObject.organisation.org_id
+                    goodsDetailObject=GoodsDetail.objects.filter(pk=goodsObject)[:1].get()
+                    organisationDetail=goodsDetailObject.organisation.org_id
 
                     if OrganisationUserDetail.objects.filter(organisation=organisationDetail).exists():
                         organisationUserDetail = OrganisationUserDetail.objects.filter(organisation=organisationDetail)[:1].get()
@@ -39,20 +39,23 @@ class AuthorizedOrgPermissionForNeedCompletion(permissions.BasePermission):
             if GoodsDetail.objects.filter(pk=request.data.get('goods_id',None)).exists():
                 goodsObject=GoodsDetail.objects.filter(pk=request.data.get('goods_id',None))[:1].get()
                 organisationDetail=goodsObject.organisation.org_id
-
                 if OrganisationUserDetail.objects.filter(organisation=organisationDetail).exists():
                     organisationUserDetail = OrganisationUserDetail.objects.filter(organisation=organisationDetail)[:1].get()
                     organisationUser = organisationUserDetail.user
                     if(organisationUser.id == user.id):
-                print("Goods",goodsObject.goods_id)
-                org_id=goodsObject.org_id.org_id
-                if OrganisationUserDetail.objects.filter(pk=org_id).exists():
-                    organisationUser = OrganisationUserDetail.objects.filter(pk=org_id)[:1].get()
-                    coordinator_id = organisationUser.coordinator_id
-                    if(coordinator_id==user.id):
-                        return True
+                        print("Goods",goodsObject.goods_id)
+                        org_id=goodsObject.org_id.org_id
+                        if OrganisationUserDetail.objects.filter(pk=org_id).exists():
+                            organisationUser = OrganisationUserDetail.objects.filter(pk=org_id)[:1].get()
+                            coordinator_id = organisationUser.coordinator_id
+                            if(coordinator_id==user.id):
+                                return True
+                            else:
+                                return False
+                        else:
+                            return True
                     else:
-                        return False
+                        return True
                 else:
                     return True
             else:

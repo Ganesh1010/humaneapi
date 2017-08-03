@@ -8,7 +8,7 @@ class UserRoleLookUpAdminModel(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdminModel(admin.ModelAdmin):
-   list_display =('id','email','first_name','last_name')
+   list_display =('id','first_name','email','mobile')
 
 @admin.register(GoodsDetail)
 class GoodsDetailAdminModel(admin.ModelAdmin):
@@ -16,7 +16,7 @@ class GoodsDetailAdminModel(admin.ModelAdmin):
 
 @admin.register(GoodsItemDetail)
 class GoodsItemDetailAdminModel(admin.ModelAdmin):
-   list_display =('sub_item_id','quantity','goods','unit')
+   list_display =('goods_item_id','goods','sub_item_id','quantity','unit')
 
 @admin.register(MainItemTypeLookUp)
 class MainItemTypeLookUpAdminModel(admin.ModelAdmin):
@@ -52,4 +52,4 @@ class DonationDetailAdminModel(admin.ModelAdmin):
 
 @admin.register(DonationItemDetail)
 class DonationItemDetailAdminModel(admin.ModelAdmin):
-   list_display =('donation_item_id','goods_item','promised_quantity','unit')
+   list_display =('donation_item_id','goods_item','donation','promised_quantity','unit')

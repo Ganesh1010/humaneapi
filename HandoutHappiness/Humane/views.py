@@ -4,7 +4,7 @@ from rest_framework.parsers import JSONParser
 from Humane.models import *
 from Humane.serializers import *
 from Humane.pagination import *
-from Humane.filter import *
+from Humane.filters import *
 from .permissions import *
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
@@ -46,10 +46,10 @@ class GoodsDetailViewSet(viewsets.ModelViewSet):
        if OrganisationUserDetail.objects.filter(user=loggedin_user_id).exists():
            organisationUserDetail=OrganisationUserDetail.objects.filter(user_id=loggedin_user_id)[:1].get()
            organisationDetail=organisationUserDetail.organisation
-           OrgGoodsDetail = GoodsDetail.objects.filter(organisation=organisationDetail)
+           OrgGoodsDetail = GoodsDetail.objects.filter(Q(organisation=organisationDetail)& Q(is_good_satisfied=False))
            return OrgGoodsDetail
        else:
-           return GoodsDetail.objects.all()
+           return GoodsDetail.objects.filter(Q(is_good_satisfied=False))
 
 class ServiceDetailViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceDetailSerializer
