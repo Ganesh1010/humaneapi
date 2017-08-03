@@ -44,6 +44,12 @@ class AuthorizedOrgPermissionForNeedCompletion(permissions.BasePermission):
                     organisationUserDetail = OrganisationUserDetail.objects.filter(organisation=organisationDetail)[:1].get()
                     organisationUser = organisationUserDetail.user
                     if(organisationUser.id == user.id):
+                print("Goods",goodsObject.goods_id)
+                org_id=goodsObject.org_id.org_id
+                if OrganisationUserDetail.objects.filter(pk=org_id).exists():
+                    organisationUser = OrganisationUserDetail.objects.filter(pk=org_id)[:1].get()
+                    coordinator_id = organisationUser.coordinator_id
+                    if(coordinator_id==user.id):
                         return True
                     else:
                         return False

@@ -213,6 +213,10 @@ class DonationCompletionSerialiser(serializers.ModelSerializer):
         fields=('donation_id','donation','received_by')
     def create(self,validated_data):
         if DonationDetail.objects.filter(donation_id=validated_data['donation_id']).exists():
+<<<<<<< HEAD
+            print("present")
+=======
+>>>>>>> f51fe86d89914f0b7ebeb6413d7368fbc6f977c5
             donation=DonationDetail.objects.filter(donation_id=validated_data['donation_id'])[:1].get()
             donation.is_donation_completed=True
             donation.delivered_date=timezone.now()
@@ -240,6 +244,8 @@ class NeedCompletionSerialiser(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError({'Error':'Goods ID not found'})
         return None
+<<<<<<< HEAD
+=======
 
 class UserReadOnlySerializer(serializers.ModelSerializer):
     class Meta:
@@ -283,3 +289,4 @@ class GoodsDetailReadOnlySerializer(serializers.ModelSerializer):
 
 
 
+>>>>>>> f51fe86d89914f0b7ebeb6413d7368fbc6f977c5
