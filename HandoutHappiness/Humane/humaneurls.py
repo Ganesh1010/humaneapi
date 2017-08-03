@@ -21,12 +21,15 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 
 router.register(r'goodsDetail',views.GoodsDetailViewSet,'goodsDetail')
+router.register(r'serviceDetail',views.ServiceDetailViewSet,'serviceDetail')
 router.register(r'donationDetail',views.DonationDetailViewSet,'donationDetail')
 router.register(r'orgDetailRegister',views.OrganisationDetailRegisterViewSet,'orgDetailRegister')
 router.register(r'donationCompletion',views.DonationCompletionViewSet,'donationCompletion')
 router.register(r'needCompletion',views.NeedCompletionViewSet,'needCompletion')
 router.register(r'editUserDetail',views.EditUserDetailViewSet,'editUserDetail')
 router.register(r'allDetail',views.AllDetailsViewSet,'allDetail')
+router.register(r'allDonationDetail',views.DonationDetailReadOnlyViewSet,'allDonationDetail')
+
 
 #router.register(r'goodsItemDetail',views.GoodsItemDetailViewSet,'goodsItemDetail')
 

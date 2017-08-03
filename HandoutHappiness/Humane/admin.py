@@ -12,19 +12,19 @@ class UserProfileAdminModel(admin.ModelAdmin):
 
 @admin.register(GoodsDetail)
 class GoodsDetailAdminModel(admin.ModelAdmin):
-   list_display =('goods_id','org_id','request_type','main_item_name','is_good_satisfied')
+   list_display =('goods_id','organisation','request','main_item','is_good_satisfied')
 
 @admin.register(GoodsItemDetail)
 class GoodsItemDetailAdminModel(admin.ModelAdmin):
-   list_display =('sub_item_id','quantity','goods_id')
+   list_display =('sub_item_id','quantity','goods','unit')
 
 @admin.register(MainItemTypeLookUp)
 class MainItemTypeLookUpAdminModel(admin.ModelAdmin):
-   list_display =('main_item_id','main_item_name','request_type')
+   list_display =('main_item_id','main_item_name','request')
 
 @admin.register(SubItemTypeLookUp)
 class SubItemTypeLookUpAdminModel(admin.ModelAdmin):
-   list_display =('sub_item_id','sub_item_name','main_item_name')
+   list_display =('sub_item_id','sub_item_name','main_item')
 
 @admin.register(UnitLookUp)
 class UnitLookUpAdminModel(admin.ModelAdmin):
@@ -40,7 +40,7 @@ class RequestTypeLookUpAdminModel(admin.ModelAdmin):
 
 @admin.register(OrganisationUserDetail)
 class OrganisationUserDetailAdminModel(admin.ModelAdmin):
-   list_display =('coordinator_id','user_id','org_id')
+   list_display =('coordinator_id','user','organisation')
 
 @admin.register(OrganisationDetail)
 class OrganisationDetailAdminModel(admin.ModelAdmin):
@@ -48,8 +48,8 @@ class OrganisationDetailAdminModel(admin.ModelAdmin):
 
 @admin.register(DonationDetail)
 class DonationDetailAdminModel(admin.ModelAdmin):
-   list_display =('donation_id','goods_id','user_id','is_donation_completed')
+   list_display =('donation_id','goods','user','is_donation_completed')
 
 @admin.register(DonationItemDetail)
 class DonationItemDetailAdminModel(admin.ModelAdmin):
-   list_display =('donation_item_id','goods_item_id','promised_quantity','unit_id')
+   list_display =('donation_item_id','goods_item','promised_quantity','unit')

@@ -29,7 +29,7 @@ class EditUserDetailViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     def get_queryset(self):
        loggedin_user_id = self.request.user.id
-       if UserProfile.objects.filter(user_id=loggedin_user_id).exists():
+       if UserProfile.objects.filter(id=loggedin_user_id).exists():
            return UserProfile.objects.all()
        else:
            return None
@@ -43,10 +43,26 @@ class GoodsDetailViewSet(viewsets.ModelViewSet):
     filter_class = GoodsFilter
     def get_queryset(self):
        loggedin_user_id = self.request.user.id
-       if OrganisationUserDetail.objects.filter(user_id=loggedin_user_id).exists():
+       if OrganisationUserDetail.objects.filter(user=loggedin_user_id).exists():
            organisationUserDetail=OrganisationUserDetail.objects.filter(user_id=loggedin_user_id)[:1].get()
-           org_id=organisationUserDetail.org_id
-           OrgGoodsDetail = GoodsDetail.objects.filter(org_id=org_id)
+           organisationDetail=organisationUserDetail.organisation
+           OrgGoodsDetail = GoodsDetail.objects.filter(organisation=organisationDetail)
+           return OrgGoodsDetail
+       else:
+           return GoodsDetail.objects.all()
+
+class ServiceDetailViewSet(viewsets.ModelViewSet):
+    serializer_class = ServiceDetailSerializer
+    http_method_names = ['get','post','head']
+    pagination_class = StandardResultsSetPagination
+    permission_classes=(CustomPermission,)
+    filter_class = GoodsFilter
+    def get_queryset(self):
+       loggedin_user_id = self.request.user.id
+       if OrganisationUserDetail.objects.filter(user=loggedin_user_id).exists():
+           organisationUserDetail=OrganisationUserDetail.objects.filter(user_id=loggedin_user_id)[:1].get()
+           organisationDetail=organisationUserDetail.organisation
+           OrgGoodsDetail = GoodsDetail.objects.filter(organisation=organisationDetail)
            return OrgGoodsDetail
        else:
            return GoodsDetail.objects.all()

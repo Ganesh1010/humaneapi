@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from Humane.models import *
 from Humane.validators import *
+from Humane.constants import *
 from django.core.validators import validate_email
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -99,7 +100,7 @@ class OrgDetailRegisterSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError({'Error':'Email already exists'})
        organisationDetail=OrganisationDetail.objects.create(**validated_data)
-       organisationUserDetail=OrganisationUserDetail.objects.create(org_id=organisationDetail,user_id=userProfile)
+       organisationUserDetail=OrganisationUserDetail.objects.create(organisation=organisationDetail,user=userProfile)
        return organisationDetail
 
 class DonatingUserDetailSerializer(serializers.ModelSerializer):
@@ -149,27 +150,55 @@ class GoodsItemDetailSerializer(serializers.ModelSerializer):
     is_good_item_satisfied = serializers.BooleanField(required=False,read_only = True)
     class Meta:
         model=GoodsItemDetail
-        exclude = ('is_good_item_satisfied','goods_id')
+        exclude = ('is_good_item_satisfied','goods')
 
 class GoodsDetailSerializer(serializers.ModelSerializer):
     goods_item_list=GoodsItemDetailSerializer(many=True,required=False)
     donation_list=DonationDetailSerializer(many=True,required=False,read_only=True)
     goods_txt_desc = serializers.CharField(required=False,validators =[validate_txt_desc])
-    org_id=serializers.CharField(required=False,read_only=True)
+    organisation=serializers.CharField(required=False,read_only=True)
     is_good_satisfied=serializers.BooleanField(required=False,read_only=True)
     class Meta:
         model=GoodsDetail
         fields = '__all__'
     def create(self, validated_data):
         items=validated_data.pop('goods_item_list')
-        if OrganisationUserDetail.objects.filter(Q(user_id=self.context['request'].user.id)).exists():
-            org=OrganisationUserDetail.objects.filter(user_id=self.context['request'].user.id)[:1].get()
-            validated_data['org_id']=org.org_id
+        if OrganisationUserDetail.objects.filter(Q(user=self.context['request'].user.id)).exists():
+            org=OrganisationUserDetail.objects.filter(user=self.context['request'].user.id)[:1].get()
+            validated_data['organisation']=org.organisation
         else:
             raise serializers.ValidationError({'Error':'Invalid operation'})
+
+        request_type=RequestTypeLookUp.objects.filter(Q(pk=goods_request_constant))[:1].get()
+        validated_data['request']=request_type
         good=GoodsDetail.objects.create(**validated_data);
         for item in items:
-            item['goods_id']=good
+            item['goods']=good
+            GoodsItemDetail.objects.create(**item)
+        return good
+
+class ServiceDetailSerializer(serializers.ModelSerializer):
+    goods_item_list=GoodsItemDetailSerializer(many=True,required=False)
+    donation_list=DonationDetailSerializer(many=True,required=False,read_only=True)
+    goods_txt_desc = serializers.CharField(required=False,validators =[validate_txt_desc])
+    organisation=serializers.CharField(required=False,read_only=True)
+    is_good_satisfied=serializers.BooleanField(required=False,read_only=True)
+    class Meta:
+        model=GoodsDetail
+        fields = '__all__'
+    def create(self, validated_data):
+        items=validated_data.pop('goods_item_list')
+        if OrganisationUserDetail.objects.filter(Q(user=self.context['request'].user.id)).exists():
+            org=OrganisationUserDetail.objects.filter(user=self.context['request'].user.id)[:1].get()
+            validated_data['organisation']=org.organisation
+        else:
+            raise serializers.ValidationError({'Error':'Invalid operation'})
+
+        request_type=RequestTypeLookUp.objects.filter(Q(pk=service_request_constant))[:1].get()
+        validated_data['request']=request_type
+        good=GoodsDetail.objects.create(**validated_data);
+        for item in items:
+            item['goods']=good
             GoodsItemDetail.objects.create(**item)
         return good
 
@@ -244,8 +273,8 @@ class GoodsItemDetailReadOnlySerializer(serializers.ModelSerializer):
         exclude=('goods_item_id',)
 
 class GoodsDetailReadOnlySerializer(serializers.ModelSerializer):
-    goods_item_list=GoodsItemDetailReadOnlySerializer(many=True,read_only=True)
     donations=DonationDetailReadOnlySerializer(many=True,read_only=True)
+    goods_item_list=GoodsItemDetailReadOnlySerializer(many=True,read_only=True)
     #posted_by=OrgDetailReadOnlySerializer(read_only=True)
 
     class Meta:

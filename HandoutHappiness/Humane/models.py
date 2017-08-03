@@ -18,7 +18,7 @@ class UserProfile(AbstractUser):
     address = models.CharField(max_length=500,blank=True,null=True)
     role = models.ForeignKey(UserRoleLookUp)
     def __str__(self):
-        return "%s"%(self.username)
+        return str(self.id)
 
 class OrganisationDetail(models.Model):
     org_id = models.AutoField(primary_key=True)
@@ -37,8 +37,8 @@ class OrganisationDetail(models.Model):
 
 class OrganisationUserDetail(models.Model):
     coordinator_id = models.AutoField(primary_key = True)
-    org_id = models.ForeignKey(OrganisationDetail)
-    user_id =  models.ForeignKey(UserProfile)
+    organisation = models.ForeignKey(OrganisationDetail)
+    user =  models.ForeignKey(UserProfile)
     def __str__(self):
       return str(self.coordinator_id)
 
@@ -51,7 +51,7 @@ class RequestTypeLookUp(models.Model):
 class MainItemTypeLookUp(models.Model):
     main_item_id = models.AutoField(primary_key = True)
     main_item_name = models.CharField(max_length=100)
-    request_type = models.ForeignKey(RequestTypeLookUp)
+    request = models.ForeignKey(RequestTypeLookUp)
     def __str__(self):
       return str(self.main_item_id)
 
@@ -59,7 +59,7 @@ class MainItemTypeLookUp(models.Model):
 class SubItemTypeLookUp(models.Model):
     sub_item_id = models.AutoField(primary_key = True)
     sub_item_name = models.CharField(max_length=100)
-    main_item_name = models.ForeignKey(MainItemTypeLookUp)
+    main_item = models.ForeignKey(MainItemTypeLookUp)
     def __str__(self):
       return str(self.sub_item_id)
 
@@ -71,52 +71,52 @@ class UnitLookUp(models.Model):
 
 class AllowedUnitLookUp(models.Model):
     allowed_unit_id = models.AutoField(primary_key = True)
-    sub_item_id = models.ForeignKey(SubItemTypeLookUp)
-    unit_id = models.ForeignKey(UnitLookUp)
+    sub_item = models.ForeignKey(SubItemTypeLookUp)
+    unit = models.ForeignKey(UnitLookUp)
     def __str__(self):
       return str(self.allowed_unit_id)
 
 class GoodsDetail(models.Model):
     goods_id = models.AutoField(primary_key=True)
-    org_id = models.ForeignKey(OrganisationDetail,related_name='org_detail')
-    request_type = models.ForeignKey(RequestTypeLookUp)
+    organisation = models.ForeignKey(OrganisationDetail,related_name='org_detail')
+    request = models.ForeignKey(RequestTypeLookUp)
     is_good_satisfied =models.BooleanField(default=False)
-    main_item_name = models.ForeignKey(MainItemTypeLookUp)
+    main_item = models.ForeignKey(MainItemTypeLookUp)
     goods_txt_desc = models.CharField(max_length=500,null=True,blank=True)
     def __str__(self):
       return str(self.goods_id)
 
 class GoodsItemDetail(models.Model):
     goods_item_id = models.AutoField(primary_key = True)
-    goods_id = models.ForeignKey(GoodsDetail,related_name='goods_item_list')
+    goods = models.ForeignKey(GoodsDetail,related_name='goods_item_list')
     quantity = models.IntegerField()
     posted_date =models.DateTimeField(default=timezone.now)
     deadline = models.DateTimeField()
-    sub_item_id = models.ForeignKey(SubItemTypeLookUp)
+    sub_item = models.ForeignKey(SubItemTypeLookUp)
     is_good_item_satisfied = models.BooleanField(default=False)
-    unit_id = models.ForeignKey(UnitLookUp)
+    unit = models.ForeignKey(UnitLookUp)
     def __str__(self):
       return str(self.goods_item_id)
 
 class DonationDetail(models.Model):
     donation_id = models.AutoField(primary_key = True)
-    goods_id = models.ForeignKey(GoodsDetail,related_name='donation_list')
+    goods = models.ForeignKey(GoodsDetail,related_name='donation_list')
     promised_date = models.DateTimeField(default=timezone.now)
     delivered_date = models.DateTimeField(null=True,blank=True)
     received_by = models.CharField(max_length=250,null=True,blank=True)
     is_volunteer_required = models.BooleanField(default=False)
     is_donation_completed = models.BooleanField(default=False)
-    user_id = models.ForeignKey(UserProfile)
+    user = models.ForeignKey(UserProfile)
     def __str__(self):
       return str(self.donation_id)
 
 class DonationItemDetail(models.Model):
    donation_item_id = models.AutoField(primary_key = True)
-   donation_id = models.ForeignKey(DonationDetail,related_name='donation_item_list')
-   goods_id =  models.ForeignKey(GoodsDetail)
-   goods_item_id = models.ForeignKey(GoodsItemDetail,related_name='goods_item_list')
+   donation = models.ForeignKey(DonationDetail,related_name='donation_item_list')
+   goods =  models.ForeignKey(GoodsDetail)
+   goods_item = models.ForeignKey(GoodsItemDetail,related_name='goods_item_list')
    promised_quantity = models.IntegerField()
    delivered_quantity = models.IntegerField(null=True,blank=True)
-   unit_id=models.ForeignKey(UnitLookUp)
+   unit = models.ForeignKey(UnitLookUp)
    def __str__(self):
       return str(self.donation_item_id)

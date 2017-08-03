@@ -9,14 +9,15 @@ class AuthorizedOrgPermissionForDonationCompletion(permissions.BasePermission):
         elif request.data.get('donation_id',None) is not None:
             if DonationDetail.objects.filter(pk=request.data.get('donation_id',None)).exists():
                 donationObject=DonationDetail.objects.filter(pk=request.data.get('donation_id',None))[:1].get()
-                goods_id=donationObject.goods_id.goods_id
-                if GoodsDetail.objects.filter(pk=goods_id).exists():
-                    goodsObject=GoodsDetail.objects.filter(pk=goods_id)[:1].get()
-                    org_id=goodsObject.org_id.org_id
-                    if OrganisationUserDetail.objects.filter(pk=org_id).exists():
-                        organisationUser = OrganisationUserDetail.objects.filter(pk=org_id)[:1].get()
-                        coordinator_id = organisationUser.coordinator_id
-                        if(coordinator_id==user.id):
+                goodsObject=donationObject.goods.goods_id
+                if GoodsDetail.objects.filter(pk=goodsObject).exists():
+                    goodsObject=GoodsDetail.objects.filter(pk=goodsObject)[:1].get()
+                    organisationDetail=goodsObject.organisation.org_id
+
+                    if OrganisationUserDetail.objects.filter(organisation=organisationDetail).exists():
+                        organisationUserDetail = OrganisationUserDetail.objects.filter(organisation=organisationDetail)[:1].get()
+                        organisationUser = organisationUserDetail.user
+                        if(organisationUser.id == user.id):
                             return True
                         else:
                             return False
@@ -37,11 +38,12 @@ class AuthorizedOrgPermissionForNeedCompletion(permissions.BasePermission):
         elif request.data.get('goods_id',None) is not None:
             if GoodsDetail.objects.filter(pk=request.data.get('goods_id',None)).exists():
                 goodsObject=GoodsDetail.objects.filter(pk=request.data.get('goods_id',None))[:1].get()
-                org_id=goodsObject.org_id.org_id
-                if OrganisationUserDetail.objects.filter(pk=org_id).exists():
-                    organisationUser = OrganisationUserDetail.objects.filter(pk=org_id)[:1].get()
-                    coordinator_id = organisationUser.coordinator_id
-                    if(coordinator_id==user.id):
+                organisationDetail=goodsObject.organisation.org_id
+
+                if OrganisationUserDetail.objects.filter(organisation=organisationDetail).exists():
+                    organisationUserDetail = OrganisationUserDetail.objects.filter(organisation=organisationDetail)[:1].get()
+                    organisationUser = organisationUserDetail.user
+                    if(organisationUser.id == user.id):
                         return True
                     else:
                         return False
@@ -50,6 +52,7 @@ class AuthorizedOrgPermissionForNeedCompletion(permissions.BasePermission):
             else:
                 return True
         return True
+
 class CustomPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         SAFE_METHODS=['GET','HEAD']
@@ -58,5 +61,5 @@ class CustomPermission(permissions.BasePermission):
         elif request.user.is_anonymous():
             return False
         else:
-            return OrganisationUserDetail.objects.filter(user_id=request.user.id).exists()
+            return OrganisationUserDetail.objects.filter(user=request.user.id).exists()
         return False
