@@ -29,7 +29,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                 return user
 
             else:
-                raise serializers.ValidationError({'Error':'Email already exists'})
+                raise serializers.ValidationError({'Error':'Mobile already exists'})
         else:
             raise serializers.ValidationError({'Error':'Email already exists'})
 
@@ -91,16 +91,16 @@ class OrgDetailRegisterSerializer(serializers.ModelSerializer):
        print (validated_data)
        users=validated_data.pop('user')
        for user in users:
-           USER_MODEL=get_user_model()
-           if not USER_MODEL.objects.filter(email= user['email']).exists():
-                   user['username']=user['email']
-                   userProfile=USER_MODEL.objects.create(**user)
-                   userProfile.set_password("12345678a")
-                   userProfile.save()
-           else:
-               raise serializers.ValidationError({'Error':'Email already exists'})
-           organisationDetail=OrganisationDetail.objects.create(**validated_data)
-           organisationUserDetail=OrganisationUserDetail.objects.create(org_id=organisationDetail,user_id=userProfile)
+            USER_MODEL=get_user_model()
+            if not USER_MODEL.objects.filter(email= user['email']).exists():
+                user['username']=user['email']
+                userProfile=USER_MODEL.objects.create(**user)
+                userProfile.set_password("12345678a")
+                userProfile.save()
+            else:
+                raise serializers.ValidationError({'Error':'Email already exists'})
+       organisationDetail=OrganisationDetail.objects.create(**validated_data)
+       organisationUserDetail=OrganisationUserDetail.objects.create(org_id=organisationDetail,user_id=userProfile)
        return organisationDetail
 
 class DonatingUserDetailSerializer(serializers.ModelSerializer):
@@ -179,15 +179,37 @@ class DonationCompletionSerialiser(serializers.ModelSerializer):
     received_by=serializers.CharField(required=True)
     donation=DonationDetailSerializer(read_only=True,source="*")
     #delivered_quantity = serializers.IntegerField(required=True,write_only=True)
-    
+
     class Meta:
         model=DonationDetail
         fields=('donation_id','donation','received_by')
     def create(self,validated_data):
-        donation=DonationDetail.objects.filter(donation_id=validated_data['donation_id'])[:1].get()
-        donation.is_donation_completed=True
-        donation.delivered_date=timezone.now()
-        donation.received_by=validated_data.get('received_by',donation.received_by)
-        #donation.delivered_quantity = validated_data.get('delivered_quantity',donation.delivered_quantity)
-        donation.save()
-        return donation
+        if DonationDetail.objects.filter(donation_id=validated_data['donation_id']).exists():
+            print("present")
+            donation=DonationDetail.objects.filter(donation_id=validated_data['donation_id'])[:1].get()
+            donation.is_donation_completed=True
+            donation.delivered_date=timezone.now()
+            donation.received_by=validated_data.get('received_by',donation.received_by)
+            #donation.delivered_quantity = validated_data.get('delivered_quantity',donation.delivered_quantity)
+            donation.save()
+            return donation
+        else:
+            raise serializers.ValidationError({'Error':'Donation ID not found'})
+        return None
+
+class NeedCompletionSerialiser(serializers.ModelSerializer):
+    goods_id=serializers.IntegerField(required=True)
+    goods_detail=GoodsDetailSerializer(read_only=True,source="*")
+    #delivered_quantity = serializers.IntegerField(required=True,write_only=True)
+    class Meta:
+        model=GoodsDetail
+        fields=('goods_id','goods_detail')
+    def create(self,validated_data):
+        if GoodsDetail.objects.filter(goods_id=validated_data['goods_id']).exists():
+            goods=GoodsDetail.objects.filter(goods_id=validated_data['goods_id'])[:1].get()
+            goods.is_good_satisfied=True
+            goods.save()
+            return goods
+        else:
+            raise serializers.ValidationError({'Error':'Goods ID not found'})
+        return None
